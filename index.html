@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech for Girls - Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background-color: #db2777; /* Pink-600 */
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #be185d; /* Pink-700 */
+        }
+        .btn-secondary {
+            background-color: #10b981; /* Emerald-500 */
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #059669; /* Emerald-600 */
+        }
+        .disabled-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 to-purple-200 min-h-screen flex items-center justify-center p-4">
+
+    <div id="main-container" class="w-full max-w-2xl mx-auto relative">
+        <div id="form-wrapper" class="form-container p-8 rounded-xl shadow-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800">🚀 Tech for Girls</h1>
+                <p class="text-gray-600 mt-2">Join our community and empower the future!</p>
+            </div>
+
+            <form id="registrationForm">
+                <!-- Basic Details Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email ID</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+                    </div>
+                    <div>
+                        <label for="college" class="block text-sm font-medium text-gray-700 mb-1">College/Department</label>
+                        <input type="text" id="college" name="college" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+                    </div>
+                </div>
+
+                <!-- WhatsApp Sharing Section -->
+                <div class="bg-pink-50 p-6 rounded-lg mb-6 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Share with your friends!</h3>
+                    <p class="text-sm text-gray-600 mb-4">Click the button 5 times to complete this step.</p>
+                    <button type="button" id="whatsappShareBtn" class="btn-secondary text-white font-bold py-2 px-6 rounded-lg inline-flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+                            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                        </svg>
+                        <span>Share on WhatsApp</span>
+                    </button>
+                    <p id="shareCounter" class="text-lg font-semibold text-pink-600 mt-4">Click count: 0/5</p>
+                    <p id="shareCompleteMsg" class="text-green-600 font-semibold mt-2 hidden">Sharing complete. Please continue.</p>
+                </div>
+
+                <!-- Screenshot Upload Section -->
+                <div class="mb-6">
+                    <label for="screenshot" class="block text-sm font-medium text-gray-700 mb-1">Upload Screenshot (Resume, Photo, etc.)</label>
+                    <input type="file" id="screenshot" name="screenshot" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                </div>
+
+                <!-- Submission Button -->
+                <div class="mt-8">
+                    <button type="submit" id="submitBtn" class="btn-primary w-full text-white font-bold py-3 px-4 rounded-lg">
+                        Submit Registration
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Submission Success Message -->
+        <div id="successOverlay" class="disabled-overlay hidden">
+             <div class="text-center p-8 bg-white rounded-lg shadow-lg">
+                <h2 class="text-3xl font-bold text-green-500 mb-4">🎉 Submission Recorded!</h2>
+                <p class="text-gray-700">Thanks for being part of Tech for Girls!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if form was already submitted
+            if (localStorage.getItem('techForGirlsSubmitted') === 'true') {
+                disableFormAndShowSuccess();
+                return;
+            }
+            
+            // --- IMPORTANT ---
+            // Paste your Google Apps Script Web App URL here
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4kubSsXWbLxIQuNekPyErNvjKzwW8SuHmmxGGtWbHCxOLyv0FQgKRD98Dtgu-QDlGYQ/exec';
+
+            const whatsappShareBtn = document.getElementById('whatsappShareBtn');
+            const shareCounterDisplay = document.getElementById('shareCounter');
+            const shareCompleteMsg = document.getElementById('shareCompleteMsg');
+            const registrationForm = document.getElementById('registrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const screenshotFile = document.getElementById('screenshot');
+
+            let shareCount = 0;
+            const requiredShares = 5;
+
+            // WhatsApp Share Button Logic
+            whatsappShareBtn.addEventListener('click', () => {
+                if (shareCount < requiredShares) {
+                    shareCount++;
+                    shareCounterDisplay.textContent = `Click count: ${shareCount}/${requiredShares}`;
+                    const message = encodeURIComponent("Hey Buddy, Join Tech For Girls Community");
+                    window.open(`https://wa.me/?text=${message}`, '_blank');
+
+                    if (shareCount === requiredShares) {
+                        shareCounterDisplay.classList.add('hidden');
+                        shareCompleteMsg.classList.remove('hidden');
+                        whatsappShareBtn.disabled = true;
+                        whatsappShareBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            });
+
+            // Form Submission Logic
+            registrationForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                if (shareCount < requiredShares) {
+                    alert('Please complete the sharing step (5/5 clicks) before submitting.');
+                    return;
+                }
+                if (screenshotFile.files.length === 0) {
+                    alert('Please upload a screenshot.');
+                    return;
+                }
+                
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                submitBtn.classList.add('opacity-50');
+
+                const formData = new FormData(registrationForm);
+
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        localStorage.setItem('techForGirlsSubmitted', 'true');
+                        disableFormAndShowSuccess();
+                    } else {
+                        throw new Error(data.message || 'Something went wrong');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Submission failed. Please try again. Error: ' + error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Registration';
+                    submitBtn.classList.remove('opacity-50');
+                });
+            });
+            
+            function disableFormAndShowSuccess() {
+                const formWrapper = document.getElementById('form-wrapper');
+                const successOverlay = document.getElementById('successOverlay');
+                
+                const formElements = registrationForm.elements;
+                for (let i = 0; i < formElements.length; i++) {
+                    formElements[i].disabled = true;
+                }
+                
+                formWrapper.style.filter = 'blur(4px)';
+                successOverlay.classList.remove('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
