@@ -320,12 +320,13 @@
                 </div>
             </form>
         </div>
-
-        <div id="successOverlay" class="disabled-overlay hidden">
-             <div class="success-card glass-effect text-center p-8 rounded-2xl shadow-xl">
-                <h2 id="successMessage" class="text-3xl font-bold text-green-500 mb-4">🎉 Submission Recorded!</h2>
-                <p class="text-gray-700">Thanks for being part of Tech for Girls!</p>
-            </div>
+    </div>
+    
+    <!-- Success Message Overlay -->
+    <div id="successOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-40">
+        <div class="success-card glass-effect text-center p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <h2 id="successMessage" class="text-3xl font-bold text-green-500 mb-4">🎉 Submission Recorded!</h2>
+            <p class="text-gray-700">Thanks for being part of Tech for Girls!</p>
         </div>
     </div>
     
@@ -430,8 +431,8 @@
             const modalImage = document.getElementById('modal-image');
 
             let fileDataUrl = null;
-            let shareCount = 0; // CORRECTED: Variable declared
-            const requiredShares = 5; // CORRECTED: Variable declared
+            let shareCount = 0; 
+            const requiredShares = 5;
 
             // Step Indicator Elements
             const stepDetails = document.getElementById('step-details');
@@ -607,7 +608,6 @@
             
             function disableFormAndShowSuccess(showConfetti, name = '') {
                 if (showConfetti) createConfetti();
-                const formWrapper = document.getElementById('form-wrapper');
                 const successOverlay = document.getElementById('successOverlay');
                 const successMessage = document.getElementById('successMessage');
 
@@ -619,7 +619,6 @@
                 for (let i = 0; i < formElements.length; i++) {
                     formElements[i].disabled = true;
                 }
-                formWrapper.style.filter = 'blur(5px)';
                 successOverlay.classList.remove('hidden');
             }
         });
