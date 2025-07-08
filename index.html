@@ -210,11 +210,11 @@
 
             // --- Form Logic ---
             if (localStorage.getItem('techForGirlsSubmitted') === 'true') {
-                disableFormAndShowSuccess(false); // No confetti on reload
+                disableFormAndShowSuccess(false);
                 return;
             }
             
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTFaO6ceD-tR-HoAxkpGEliMa2smN1D32LjM61pdFkNQng0EwOvZqFPw9irptZppX-7Q/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4vH-QfMVzTH09ODcOagicbiflQlKHsiKy1jZkB_HQzNAIFf96UEirE2EuoyvpjeVB5A/exec'; // IMPORTANT: Use the new URL from the next step
 
             const registrationForm = document.getElementById('registrationForm');
             const submitBtn = document.getElementById('submitBtn');
@@ -284,15 +284,16 @@
 
             registrationForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                errorMessageDiv.classList.add('hidden'); // Hide previous errors
+                errorMessageDiv.classList.add('hidden');
 
                 if (shareCount < requiredShares) {
-                    errorTextSpan.textContent = 'Please complete the sharing step (5/5 clicks) before submitting.';
+                    errorTextSpan.textContent = 'Please complete the sharing step (5/5 clicks).';
                     errorMessageDiv.classList.remove('hidden');
                     return;
                 }
-                if (screenshotFile.files.length === 0) {
-                    errorTextSpan.textContent = 'Please upload a screenshot before submitting.';
+                const file = screenshotFile.files[0];
+                if (!file) {
+                    errorTextSpan.textContent = 'Please upload a screenshot.';
                     errorMessageDiv.classList.remove('hidden');
                     return;
                 }
@@ -302,44 +303,68 @@
                 if(submitSpan) submitSpan.textContent = 'Submitting...';
                 submitBtn.classList.add('opacity-50');
 
-                const formData = new FormData(registrationForm);
+                // NEW: Read file as Base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const fileContent = reader.result;
+                    const submissionData = {
+                        name: document.getElementById('name').value,
+                        phone: document.getElementById('phone').value,
+                        email: document.getElementById('email').value,
+                        college: document.getElementById('college').value,
+                        file: {
+                            base64: fileContent.split(',')[1], // Get only the Base64 part
+                            type: file.type,
+                            name: file.name
+                        }
+                    };
 
-                fetch(SCRIPT_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        localStorage.setItem('techForGirlsSubmitted', 'true');
-                        disableFormAndShowSuccess(true); // Fire confetti on success
-                    } else { throw new Error(data.message || 'Something went wrong'); }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    errorTextSpan.textContent = 'Submission failed. Please try again. (' + error.message + ')';
+                    fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify(submissionData),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Use text/plain for this method
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            localStorage.setItem('techForGirlsSubmitted', 'true');
+                            disableFormAndShowSuccess(true);
+                        } else { throw new Error(data.message || 'Something went wrong'); }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorTextSpan.textContent = 'Submission failed. Please try again. (' + error.message + ')';
+                        errorMessageDiv.classList.remove('hidden');
+                        
+                        submitBtn.disabled = false;
+                        if(submitSpan) submitSpan.textContent = 'Submit Registration';
+                        submitBtn.classList.remove('opacity-50');
+                    });
+                };
+                reader.onerror = error => {
+                    console.error('File reading error:', error);
+                    errorTextSpan.textContent = 'Could not read the file. Please try another one.';
                     errorMessageDiv.classList.remove('hidden');
-                    
                     submitBtn.disabled = false;
                     if(submitSpan) submitSpan.textContent = 'Submit Registration';
                     submitBtn.classList.remove('opacity-50');
-                });
+                };
             });
             
             function disableFormAndShowSuccess(showConfetti) {
-                if (showConfetti) {
-                    createConfetti();
-                }
+                if (showConfetti) createConfetti();
                 const formWrapper = document.getElementById('form-wrapper');
                 const successOverlay = document.getElementById('successOverlay');
-                
                 const formElements = registrationForm.elements;
                 for (let i = 0; i < formElements.length; i++) {
                     formElements[i].disabled = true;
                 }
-                
                 formWrapper.style.filter = 'blur(5px)';
                 successOverlay.classList.remove('hidden');
             }
 
-            updateProgress(); // Initial call
+            updateProgress();
         });
     </script>
 
