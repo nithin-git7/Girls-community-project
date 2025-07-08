@@ -9,12 +9,24 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            overflow-y: auto; /* Allow vertical scroll */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* --- Interactive Background --- */
+        #interactive-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #fbcfe8, #f0abfc, #a5b4fc, #67e8f9);
         }
 
         /* --- Keyframe Animations --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes backgroundPan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes drawCheck { to { stroke-dashoffset: 0; } }
         @keyframes fall {
             to {
@@ -22,67 +34,141 @@
                 opacity: 0;
             }
         }
-
-        /* --- Animated Background --- */
-        .animated-gradient {
-            background: linear-gradient(135deg, #fbcfe8, #f0abfc, #a5b4fc, #67e8f9);
-            background-size: 400% 400%;
-            animation: backgroundPan 15s ease infinite;
+        @keyframes jiggle {
+            0%, 100% { transform: scale(1.05) rotate(-1deg); }
+            50% { transform: scale(1.05) rotate(1deg); }
         }
 
-        /* --- Animated Form Container --- */
-        .form-container {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            animation: fadeInUp 0.8s ease-out forwards;
+        /* --- Glassmorphism UI Effect --- */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         /* --- Enhanced Buttons --- */
         .btn {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(0,0,0,0.15);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        .btn-primary {
-            background-color: #db2777; /* Pink-600 */
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
-        .btn-primary:hover {
-            background-color: #be185d; /* Pink-700 */
-        }
-        .btn-secondary {
-            background-color: #10b981; /* Emerald-500 */
-        }
-        .btn-secondary:hover {
-            background-color: #059669; /* Emerald-600 */
-        }
+        .btn-primary { background-color: #db2777; }
+        .btn-primary:hover { background-color: #be185d; }
+        .btn-secondary { background-color: #10b981; }
+        .btn-secondary:hover { background-color: #059669; }
         
-        /* --- Enhanced Input Fields --- */
+        /* --- Floating Label Input Fields --- */
+        .floating-label-group {
+            position: relative;
+        }
         .form-input {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding-top: 1.25rem;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        .form-label {
+            position: absolute;
+            top: 0.85rem;
+            left: 1rem;
+            color: #4b5563;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .form-input:focus + .form-label,
+        .form-input:not(:placeholder-shown) + .form-label {
+            top: 0.25rem;
+            left: 1rem;
+            font-size: 0.75rem;
+            color: #db2777;
         }
         .form-input:focus {
             border-color: #db2777;
-            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.3);
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.2);
         }
 
-        /* --- Progress Bar --- */
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            overflow: hidden;
-            margin-bottom: 2rem;
+        /* --- Step Indicator --- */
+        .step-connector {
+            flex-grow: 1;
+            height: 2px;
+            background-color: #d1d5db;
+            transition: background-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .progress-bar-fill {
-            height: 100%;
-            background-color: #10b981;
+        .step-icon {
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: 9999px;
-            width: 10%; /* Initial state */
-            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e5e7eb;
+            color: #6b7280;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+        }
+        .step:not(.completed) .step-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(219, 39, 119, 0.3);
+            animation: jiggle 0.5s infinite;
+        }
+        .step-label {
+            position: absolute;
+            top: 3rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            transition: color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            white-space: nowrap;
+        }
+        .step.active .step-icon {
+            background-color: #db2777;
+            color: white;
+        }
+        .step.active .step-label {
+            color: #db2777;
+        }
+        .step.completed .step-icon {
+            background-color: #10b981;
+            color: white;
+            cursor: default;
+        }
+        .step.completed .step-label {
+            color: #059669;
+        }
+        .step.completed .step-connector {
+            background-color: #10b981;
+        }
+        .step-icon svg {
+            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .step-icon .check-svg {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        .step.completed .step-icon .check-svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .step.completed .step-icon .original-svg {
+            opacity: 0;
+        }
+        
+        /* --- File Upload Area --- */
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .file-upload-area:hover, .file-upload-area.dragover {
+             border-color: #db2777;
+             background-color: rgba(255, 255, 255, 0.5);
         }
         
         /* --- Animated Checkmark --- */
@@ -91,7 +177,7 @@
             stroke-width: 4;
             stroke-dasharray: 48;
             stroke-dashoffset: 48;
-            animation: drawCheck 0.5s ease-out forwards;
+            animation: drawCheck 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
         
         /* --- Confetti --- */
@@ -105,47 +191,81 @@
             pointer-events: none;
             animation: fall 3s linear forwards;
         }
+
+        /* --- Preview Modal --- */
+        #preview-modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        #preview-modal-content {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
-<body class="animated-gradient min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <canvas id="interactive-bg"></canvas>
 
     <div id="main-container" class="w-full max-w-2xl mx-auto relative">
-        <div id="form-wrapper" class="form-container p-8 rounded-xl shadow-2xl">
+        <div id="form-wrapper" class="glass-effect p-8 rounded-2xl shadow-2xl">
             <div class="text-center mb-6">
-                <h1 class="text-4xl font-bold text-gray-800">🚀 Tech for Girls</h1>
-                <p class="text-gray-600 mt-2">Join our community and empower the future!</p>
+                <h1 class="text-4xl font-bold text-gray-800 flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    <span>Tech for Girls</span>
+                </h1>
+                <p class="text-gray-700 mt-2">Join our community and empower the future!</p>
             </div>
             
-            <!-- Progress Bar -->
-            <div class="progress-bar-container">
-                <div id="progressBar" class="progress-bar-fill"></div>
+            <!-- Step Indicator -->
+            <div class="flex items-center w-full mb-16">
+                <div id="step-details" class="step active flex flex-col items-center relative">
+                    <div class="step-icon">
+                        <svg class="original-svg h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        <svg class="check-svg absolute h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span class="step-label">Details</span>
+                </div>
+                <div id="connector-1" class="step-connector"></div>
+                <div id="step-share" class="step flex flex-col items-center relative">
+                    <div class="step-icon">
+                        <svg class="original-svg h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
+                        <svg class="check-svg absolute h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span class="step-label">Share</span>
+                </div>
+                <div id="connector-2" class="step-connector"></div>
+                <div id="step-upload" class="step flex flex-col items-center relative">
+                    <div class="step-icon">
+                        <svg class="original-svg h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                        <svg class="check-svg absolute h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span class="step-label">Upload</span>
+                </div>
             </div>
 
             <form id="registrationForm">
-                <!-- Basic Details Section -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input type="text" id="name" name="name" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 mb-6">
+                    <div class="floating-label-group">
+                        <input type="text" id="name" name="name" required class="form-input w-full px-4 border border-gray-300 rounded-lg focus:ring-0" placeholder=" ">
+                        <label for="name" class="form-label">Full Name</label>
                     </div>
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0">
+                    <div class="floating-label-group">
+                        <input type="tel" id="phone" name="phone" required class="form-input w-full px-4 border border-gray-300 rounded-lg focus:ring-0" placeholder=" ">
+                        <label for="phone" class="form-label">Phone Number</label>
                     </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email ID</label>
-                        <input type="email" id="email" name="email" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0">
+                    <div class="floating-label-group">
+                        <input type="email" id="email" name="email" required class="form-input w-full px-4 border border-gray-300 rounded-lg focus:ring-0" placeholder=" ">
+                        <label for="email" class="form-label">Email ID</label>
                     </div>
-                    <div>
-                        <label for="college" class="block text-sm font-medium text-gray-700 mb-1">College/Department</label>
-                        <input type="text" id="college" name="college" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0">
+                    <div class="floating-label-group">
+                        <input type="text" id="college" name="college" required class="form-input w-full px-4 border border-gray-300 rounded-lg focus:ring-0" placeholder=" ">
+                        <label for="college" class="form-label">College/Department</label>
                     </div>
                 </div>
 
-                <!-- WhatsApp Sharing Section -->
-                <div class="bg-pink-50 p-6 rounded-lg mb-6 text-center border border-pink-100">
+                <div class="bg-white/40 p-6 rounded-lg mb-6 text-center border border-white/50">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">Share with your friends!</h3>
-                    <p class="text-sm text-gray-600 mb-4">Click the button 5 times to complete this step.</p>
+                    <p class="text-sm text-gray-700 mb-4">Click the button 5 times to complete this step.</p>
                     <button type="button" id="whatsappShareBtn" class="btn btn-secondary text-white font-bold py-2 px-6 rounded-lg inline-flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
                         <span>Share on WhatsApp</span>
@@ -159,22 +279,40 @@
                     </div>
                 </div>
 
-                <!-- Screenshot Upload Section -->
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Screenshot (Resume, Photo, etc.)</label>
-                    <label for="screenshot" class="file-input-label w-full text-center rounded-lg text-gray-500 block cursor-pointer border-2 border-dashed transition hover:border-pink-500 hover:text-pink-600">
-                        <span id="fileName">Click to select a file</span>
-                    </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Document</label>
+                    <div id="upload-area-container">
+                        <!-- Initial Upload Prompt -->
+                        <label for="screenshot" id="upload-prompt" class="file-upload-area flex flex-col items-center justify-center w-full h-32 rounded-lg cursor-pointer p-4">
+                             <div class="text-center text-gray-500">
+                                <svg class="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                <p class="mt-1 text-sm">Click to upload or drag and drop</p>
+                                <p class="text-xs">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </label>
+                        <!-- File Info Display -->
+                        <div id="file-info" class="hidden w-full bg-white/40 p-4 rounded-lg border border-white/50">
+                            <div class="flex items-center gap-4">
+                                <svg class="h-10 w-10 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                <div class="flex-grow overflow-hidden">
+                                    <p id="file-name" class="text-sm font-medium text-gray-800 truncate">filename.jpg</p>
+                                    <p id="file-size" class="text-xs text-gray-600">1.2 MB</p>
+                                </div>
+                                <button type="button" id="preview-btn" class="text-sm text-pink-600 hover:underline">Preview</button>
+                                <button type="button" id="remove-btn" class="text-gray-500 hover:text-red-600">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <input type="file" id="screenshot" name="screenshot" accept="image/*" required class="hidden">
                 </div>
 
-                <!-- Error Message Display -->
                 <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
                     <strong class="font-bold">Oops!</strong>
                     <span class="block sm:inline" id="errorText">Something went wrong. Please try again.</span>
                 </div>
 
-                <!-- Submission Button -->
                 <div class="mt-8">
                     <button type="submit" id="submitBtn" class="btn btn-primary w-full text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center">
                         <span>Submit Registration</span>
@@ -183,17 +321,69 @@
             </form>
         </div>
 
-        <!-- Submission Success Message -->
         <div id="successOverlay" class="disabled-overlay hidden">
-             <div class="success-card text-center p-8 bg-white rounded-lg shadow-xl">
-                <h2 class="text-3xl font-bold text-green-500 mb-4">🎉 Submission Recorded!</h2>
+             <div class="success-card glass-effect text-center p-8 rounded-2xl shadow-xl">
+                <h2 id="successMessage" class="text-3xl font-bold text-green-500 mb-4">🎉 Submission Recorded!</h2>
                 <p class="text-gray-700">Thanks for being part of Tech for Girls!</p>
             </div>
         </div>
     </div>
+    
+    <!-- Preview Modal -->
+    <div id="preview-modal-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div id="preview-modal-content" class="bg-white p-4 rounded-lg shadow-2xl max-w-3xl w-full max-h-[80vh] transform scale-95">
+            <img id="modal-image" src="" alt="Image Preview" class="w-full h-full object-contain">
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Interactive Background ---
+            const canvas = document.getElementById('interactive-bg');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < 20; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 3 + 2,
+                        vx: Math.random() * 0.4 - 0.2,
+                        vy: Math.random() * 0.4 - 0.2,
+                        color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`
+                    });
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                });
+                requestAnimationFrame(animateParticles);
+            }
+            initParticles();
+            animateParticles();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initParticles();
+            });
+
              // --- Confetti ---
             function createConfetti() {
                 const confettiColors = ['#db2777', '#be185d', '#10b981', '#f0abfc', '#a5b4fc'];
@@ -214,38 +404,64 @@
                 return;
             }
             
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj8Mt-vYqeXsE4RVMrpFlcVuE9EsiZPQSQuwJG2PssQp2hXQeQk_uBXX-phBnGa9Bo0g/exec'; // IMPORTANT: Use the new URL from the next step
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj8Mt-vYqeXsE4RVMrpFlcVuE9EsiZPQSQuwJG2PssQp2hXQeQk_uBXX-phBnGa9Bo0g/exec';
 
             const registrationForm = document.getElementById('registrationForm');
             const submitBtn = document.getElementById('submitBtn');
-            const progressBar = document.getElementById('progressBar');
             
-            const formInputs = registrationForm.querySelectorAll('.form-input');
             const whatsappShareBtn = document.getElementById('whatsappShareBtn');
             const shareCounterDisplay = document.getElementById('shareCounter');
             const shareCompleteMsg = document.getElementById('shareCompleteMsg');
             const screenshotFile = document.getElementById('screenshot');
-            const fileNameDisplay = document.getElementById('fileName');
             const errorMessageDiv = document.getElementById('errorMessage');
             const errorTextSpan = document.getElementById('errorText');
+            
+            // File Upload Elements
+            const uploadPrompt = document.getElementById('upload-prompt');
+            const fileInfo = document.getElementById('file-info');
+            const fileNameEl = document.getElementById('file-name');
+            const fileSizeEl = document.getElementById('file-size');
+            const previewBtn = document.getElementById('preview-btn');
+            const removeBtn = document.getElementById('remove-btn');
+            
+            // Preview Modal Elements
+            const modalOverlay = document.getElementById('preview-modal-overlay');
+            const modalContent = document.getElementById('preview-modal-content');
+            const modalImage = document.getElementById('modal-image');
 
-            let shareCount = 0;
-            const requiredShares = 5;
+            let fileDataUrl = null;
+
+            // Step Indicator Elements
+            const stepDetails = document.getElementById('step-details');
+            const stepShare = document.getElementById('step-share');
+            const stepUpload = document.getElementById('step-upload');
+            const connector1 = document.getElementById('connector-1');
+            const connector2 = document.getElementById('connector-2');
+
             let progress = { details: false, share: false, upload: false };
 
-            function updateProgress() {
-                let width = 10;
-                if (progress.details) width += 30;
-                if (progress.share) width += 30;
-                if (progress.upload) width += 30;
-                progressBar.style.width = `${width}%`;
+            function updateStepIndicator() {
+                if (progress.details) {
+                    stepDetails.classList.add('completed');
+                    stepShare.classList.add('active');
+                    connector1.classList.add('completed');
+                }
+                if (progress.share) {
+                    stepShare.classList.add('completed');
+                    stepUpload.classList.add('active');
+                    connector2.classList.add('completed');
+                }
+                if (progress.upload) {
+                    stepUpload.classList.add('completed');
+                }
             }
             
-            formInputs.forEach(input => {
+            registrationForm.querySelectorAll('.form-input').forEach(input => {
                 input.addEventListener('input', () => {
-                    if(!progress.details) {
+                    const allFilled = [...registrationForm.querySelectorAll('.form-input')].every(i => i.value.trim() !== '');
+                    if(allFilled && !progress.details) {
                         progress.details = true;
-                        updateProgress();
+                        updateStepIndicator();
                     }
                 });
             });
@@ -263,37 +479,77 @@
                         whatsappShareBtn.disabled = true;
                         whatsappShareBtn.classList.add('opacity-50', 'cursor-not-allowed');
                         progress.share = true;
-                        updateProgress();
+                        updateStepIndicator();
                     }
                 }
             });
 
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
             screenshotFile.addEventListener('change', () => {
-                if (screenshotFile.files.length > 0) {
-                    fileNameDisplay.textContent = screenshotFile.files[0].name;
-                    fileNameDisplay.parentElement.classList.add('border-green-500', 'text-green-600');
+                const file = screenshotFile.files[0];
+                if (file) {
+                    fileNameEl.textContent = file.name;
+                    fileSizeEl.textContent = formatFileSize(file.size);
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        fileDataUrl = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+
+                    uploadPrompt.classList.add('hidden');
+                    fileInfo.classList.remove('hidden');
+
                     if(!progress.upload) {
                         progress.upload = true;
-                        updateProgress();
+                        updateStepIndicator();
                     }
-                } else {
-                    fileNameDisplay.textContent = 'Click to select a file';
-                    fileNameDisplay.parentElement.classList.remove('border-green-500', 'text-green-600');
                 }
+            });
+            
+            removeBtn.addEventListener('click', () => {
+                screenshotFile.value = ''; // Clear the file input
+                fileDataUrl = null;
+                uploadPrompt.classList.remove('hidden');
+                fileInfo.classList.add('hidden');
+                progress.upload = false; // Reset progress if needed, though not strictly necessary
+                // You might want to update the step indicator back to its previous state here
+            });
+            
+            previewBtn.addEventListener('click', () => {
+                if (fileDataUrl) {
+                    modalImage.src = fileDataUrl;
+                    modalOverlay.classList.remove('hidden');
+                    modalOverlay.classList.add('flex');
+                    setTimeout(() => {
+                        modalOverlay.classList.remove('opacity-0');
+                        modalContent.classList.remove('scale-95');
+                    }, 10);
+                }
+            });
+
+            modalOverlay.addEventListener('click', () => {
+                modalOverlay.classList.add('opacity-0');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    modalOverlay.classList.add('hidden');
+                    modalOverlay.classList.remove('flex');
+                }, 300);
             });
 
             registrationForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 errorMessageDiv.classList.add('hidden');
 
-                if (shareCount < requiredShares) {
-                    errorTextSpan.textContent = 'Please complete the sharing step (5/5 clicks).';
-                    errorMessageDiv.classList.remove('hidden');
-                    return;
-                }
-                const file = screenshotFile.files[0];
-                if (!file) {
-                    errorTextSpan.textContent = 'Please upload a screenshot.';
+                if (!progress.details || !progress.share || !progress.upload) {
+                    errorTextSpan.textContent = 'Please complete all steps before submitting.';
                     errorMessageDiv.classList.remove('hidden');
                     return;
                 }
@@ -303,59 +559,53 @@
                 if(submitSpan) submitSpan.textContent = 'Submitting...';
                 submitBtn.classList.add('opacity-50');
 
-                // NEW: Read file as Base64
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const fileContent = reader.result;
-                    const submissionData = {
-                        name: document.getElementById('name').value,
-                        phone: document.getElementById('phone').value,
-                        email: document.getElementById('email').value,
-                        college: document.getElementById('college').value,
-                        file: {
-                            base64: fileContent.split(',')[1], // Get only the Base64 part
-                            type: file.type,
-                            name: file.name
-                        }
-                    };
-
-                    fetch(SCRIPT_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify(submissionData),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Use text/plain for this method
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            localStorage.setItem('techForGirlsSubmitted', 'true');
-                            disableFormAndShowSuccess(true);
-                        } else { throw new Error(data.message || 'Something went wrong'); }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        errorTextSpan.textContent = 'Submission failed. Please try again. (' + error.message + ')';
-                        errorMessageDiv.classList.remove('hidden');
-                        
-                        submitBtn.disabled = false;
-                        if(submitSpan) submitSpan.textContent = 'Submit Registration';
-                        submitBtn.classList.remove('opacity-50');
-                    });
+                const file = screenshotFile.files[0];
+                const userName = document.getElementById('name').value;
+                const submissionData = {
+                    name: userName,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    college: document.getElementById('college').value,
+                    file: {
+                        base64: fileDataUrl.split(',')[1],
+                        type: file.type,
+                        name: file.name
+                    }
                 };
-                reader.onerror = error => {
-                    console.error('File reading error:', error);
-                    errorTextSpan.textContent = 'Could not read the file. Please try another one.';
+
+                fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(submissionData),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        localStorage.setItem('techForGirlsSubmitted', 'true');
+                        disableFormAndShowSuccess(true, userName);
+                    } else { throw new Error(data.message || 'Something went wrong'); }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorTextSpan.textContent = 'Submission failed. Please try again. (' + error.message + ')';
                     errorMessageDiv.classList.remove('hidden');
+                    
                     submitBtn.disabled = false;
                     if(submitSpan) submitSpan.textContent = 'Submit Registration';
                     submitBtn.classList.remove('opacity-50');
-                };
+                });
             });
             
-            function disableFormAndShowSuccess(showConfetti) {
+            function disableFormAndShowSuccess(showConfetti, name = '') {
                 if (showConfetti) createConfetti();
                 const formWrapper = document.getElementById('form-wrapper');
                 const successOverlay = document.getElementById('successOverlay');
+                const successMessage = document.getElementById('successMessage');
+
+                if (name) {
+                    successMessage.innerHTML = `🎉 Thanks, ${name}!`;
+                }
+                
                 const formElements = registrationForm.elements;
                 for (let i = 0; i < formElements.length; i++) {
                     formElements[i].disabled = true;
@@ -363,8 +613,6 @@
                 formWrapper.style.filter = 'blur(5px)';
                 successOverlay.classList.remove('hidden');
             }
-
-            updateProgress();
         });
     </script>
 
