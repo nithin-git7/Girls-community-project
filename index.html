@@ -430,6 +430,8 @@
             const modalImage = document.getElementById('modal-image');
 
             let fileDataUrl = null;
+            let shareCount = 0; // CORRECTED: Variable declared
+            const requiredShares = 5; // CORRECTED: Variable declared
 
             // Step Indicator Elements
             const stepDetails = document.getElementById('step-details');
@@ -467,11 +469,18 @@
             });
 
             whatsappShareBtn.addEventListener('click', () => {
+                errorMessageDiv.classList.add('hidden'); // Clear previous errors
                 if (shareCount < requiredShares) {
                     shareCount++;
                     shareCounterDisplay.textContent = `Click count: ${shareCount}/${requiredShares}`;
                     const message = encodeURIComponent("Hey Buddy, Join Tech For Girls Community");
-                    window.open(`https://wa.me/?text=${message}`, '_blank');
+                    
+                    const newWindow = window.open(`https://wa.me/?text=${message}`, '_blank');
+
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                        errorTextSpan.textContent = 'Popup blocked! Please allow popups for this site to share on WhatsApp.';
+                        errorMessageDiv.classList.remove('hidden');
+                    }
 
                     if (shareCount === requiredShares) {
                         shareCounterDisplay.classList.add('hidden');
